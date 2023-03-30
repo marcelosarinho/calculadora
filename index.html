@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="./style.css" />
+    <title>Calculadora</title>
+  </head>
+  <body>
+    <h3>Calculadora feita usando JavaScript, HTML e CSS</h3>
+    <div class="calculator">
+      <div class="display">0</div>
+      <div class="keys">
+        <button>7</button>
+        <button>8</button>
+        <button>9</button>
+        <button class="operator" data-action="divide">&divide;</button>
+        <button>4</button>
+        <button>5</button>
+        <button>6</button>
+        <button class="operator" data-action="multiply">&times;</button>
+        <button>1</button>
+        <button>2</button>
+        <button>3</button>
+        <button class="operator" data-action="subtract">-</button>
+        <button>0</button>
+        <button data-action="decimal">.</button>
+        <button data-action="clear">AC</button>
+        <button class="operator" data-action="add">+</button>
+        <button class="equal" data-action="result">=</button>
+      </div>
+    </div>
+  </body>
+  <script>
+    const calculator = document.querySelector(".calculator");
+    const keys = document.querySelector(".keys");
+    const display = document.querySelector(".display");
+
+    const calculate = (n1, operator, n2) => {
+      const firstNum = parseFloat(n1);
+      const secondNum = parseFloat(n2);
+
+      if (operator === "add") return firstNum + secondNum;
+      if (operator === "subtract") return firstNum - secondNum;
+      if (operator === "divide") return firstNum / secondNum;
+      if (operator === "multiply") return firstNum * secondNum;
+    };
+
+    const createResultString = () => {
+        if (!action) {
+          return displayedNum === "0" ||
+            previousKeyType === "operator" ||
+            previousKeyType === "result"
+            ? keyContent
+            : displayedNum + keyContent
+        }
+
+        if (action === "decimal") {
+          if (!displayedNum.includes(".")) return displayedNum + ".";
+          if (previousKeyType === "operator" || previousKeyType === "result") return "0.";
+          return displayedNum;
+        }
+
+        if (
+          action === "add" ||
+          action === "subtract" ||
+          action === "divide" ||
+          action === "multiply"
+        ) {
+          const firstValue = calculator.dataset.firstValue;
+          const operator = calculator.dataset.operator;
+
+          return firstValue &&
+            operator &&
+            previousKeyType !== "operator" &&
+            previousKeyType !== "result"
+            ? calculate(firstValue, operator, displayedNum)
+            : displayedNum;
+        }
+
+        if (action === "clear") return 0;
+
+        if (action === "result") {
+          const firstValue = calculator.dataset.firstValue;
+          const operator = calculator.dataset.operator;
+          const modValue= calculator.dataset.modValue;
+
+          if (firstValue) {
+            return previousKeyType === "result"
+            ? calculate(displayedNum, operator, modValue)
+            : calculate(firstValue, operator, displayedNum);
+          } else {
+            return displayedNum;
+          }
+        }
+      }
+
+    keys.addEventListener("click", e => {
+
+      const resultString = createResultString();
+      display.textContent = resultString;
+      updateCalculatorState();
+
+      if (e.target.matches("button")) {
+        const key = e.target;
+        const action = key.dataset.action;
+        const keyContent = key.textContent;
+        const displayedNum = display.textContent;
+        const previousKeyType = calculator.dataset.previousKeyType;
+
+        Array.from(key.parentNode.children).forEach((k) =>
+          k.classList.remove("is-pressed")
+        );
+
+        if (action !== "clear") {
+          const clearButton = calculator.querySelector("[data-action=clear]");
+          clearButton.textContent = "CE";
+        }
+
+      }
+    });
+  </script>
+</html>
